@@ -11,9 +11,10 @@ albergues-senapred/
 ├── index.html              # Dashboard (carga datos de data.json)
 ├── data.json               # Datos de albergues + metadata
 ├── scripts/
-│   └── update_albergues.py # Script de verificación de cambios
+│   └── scrape_news.py      # Busca noticias nuevas de albergues (Google News RSS)
+├── seen_articles.json      # Links ya vistos, evita duplicados entre corridas
 ├── .github/workflows/
-│   └── check.yml           # GitHub Actions: verifica cambios cada 24h
+│   └── check.yml           # GitHub Actions: corre diario a mediodía Santiago hasta 23 jul 2026
 └── README.md
 ```
 
@@ -52,28 +53,28 @@ albergues-senapred/
 Cuando hay nuevos comunicados de SENAPRED/municipios:
 
 1. Edita `data.json` con los nuevos albergues
-2. Ejecuta el script (actualiza timestamp):
-   ```bash
-   python scripts/update_albergues.py
-   ```
-3. Haz commit y push:
+2. Haz commit y push:
    ```bash
    git add data.json
    git commit -m "Agregar albergues: [región, municipio]"
    git push
    ```
-4. Netlify se redeploy automáticamente
+3. Netlify se redeploy automáticamente
 
-#### Opción 2: Verificación automática (cada 24h)
-El workflow `.github/workflows/check.yml` ejecuta cada 24 horas y:
-- Verifica si hay cambios en fuentes públicas (cuando se implemente el scraping)
-- Comenta en un issue si detecta cambios
-- Tú haces el update manual de `data.json` y push
+#### Opción 2: Revisión diaria automática (hasta el 23 de julio 2026)
+El workflow `.github/workflows/check.yml` corre todos los días a las 12:00 (América/Santiago) y:
+1. Busca noticias nuevas sobre albergues/refugios en Google News (RSS, sin necesitar login ni API key)
+2. Si encuentra algo que no había visto antes, **abre un Pull Request** con los titulares/links en `pending_review.md` — no toca `data.json` solo
+3. Tú revisas el PR, editas `data.json` a mano en esa misma rama si corresponde, y haces merge
+
+No hay scraping de X/Twitter: sin API oficial, un runner de GitHub Actions no puede leer el feed de forma confiable, así que se omitió en vez de simular algo que fallaría en silencio.
 
 Para probar el workflow manualmente:
 ```bash
-# En GitHub, ve a Actions → "Verificar cambios en albergues" → "Run workflow"
+# En GitHub, ve a Actions → "Buscar noticias de albergues (diario, mediodía Santiago)" → "Run workflow"
 ```
+
+**Requisito único:** en el repo, ve a Settings → Actions → General → "Workflow permissions" y marca "Allow GitHub Actions to create and approve pull requests" (viene desactivado por defecto en repos nuevos; sin esto el PR automático falla).
 
 ## Estructura de data.json
 
@@ -102,29 +103,27 @@ Para probar el workflow manualmente:
 
 ## Scripts
 
-### `update_albergues.py`
+### `scrape_news.py`
 
-Uso:
+Uso local:
 ```bash
-python scripts/update_albergues.py
+python scripts/scrape_news.py
 ```
 
-Hoy: verifica sin cambios y actualiza timestamp.
+Busca 4 queries en Google News RSS (`albergues SENAPRED`, `albergue habilitado Chile`, `refugio emergencia Chile sistema frontal`, `evacuación preventiva albergue Chile`), filtra por las últimas ~30 horas, descarta lo ya visto (`seen_articles.json`) y escribe `pending_review.md` con lo nuevo. Exit code `1` si encontró algo nuevo (el workflow lo usa para decidir si abre PR), `0` si no.
 
-Futuro: implementar scraping de:
-- `senapred.cl/albergues-emergencia`
-- `@Senapred` en X (Twitter)
-- Comunicados de prensa regionales
+No escribe ni inventa datos en `data.json` — solo señala noticias candidatas para revisión humana.
 
 ## GitHub Actions
 
 **Workflow**: `.github/workflows/check.yml`
-- Ejecuta cada 24 horas (cron `0 12 * * *` = 12:00 UTC / 08:00 CLT)
-- Ejecuta `python scripts/update_albergues.py`
-- Si detecta cambios, comenta en un issue de seguimiento
+- Cron `0 16 * * *` UTC = 12:00 América/Santiago (Chile en horario estándar en julio, sin DST)
+- Se auto-desactiva después del 23 de julio de 2026 (chequeo de fecha dentro del propio workflow, no hace falta borrarlo a mano)
+- Ejecuta `scripts/scrape_news.py`
+- Si hay noticias nuevas, abre un PR con `pending_review.md` para revisión
 - Disparo manual: GitHub Actions UI → "Run workflow"
 
-**Nota**: No hace auto-commit. El cambio real en `data.json` lo haces tú, y Netlify se redeploy en cada push.
+**Nota**: No hace auto-commit a `main`. El PR es el gate de revisión; el merge lo decides tú.
 
 ## Precisión de coordenadas
 

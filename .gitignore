@@ -28,3 +28,6 @@ netlify.toml.local
 node_modules/
 package-lock.json
 npm-debug.log
+
+# Generado por scrape_news.py en cada corrida local; en CI viaja solo dentro del PR
+pending_review.md
