@@ -267,6 +267,17 @@
   }
   .related-nav a:hover{text-decoration:underline;}
   .related-nav a:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+
+  .codigo-azul-block{
+    margin-bottom:28px; padding:18px 20px; border:1px solid var(--line); border-radius:12px; background:var(--surface);
+  }
+  .codigo-azul-block summary{
+    cursor:pointer; font-weight:800; font-size:15px; letter-spacing:-0.01em; list-style:none;
+  }
+  .codigo-azul-block summary::-webkit-details-marker{display:none;}
+  .codigo-azul-block summary::before{content:"▸ "; color:var(--storm);}
+  .codigo-azul-block[open] summary::before{content:"▾ ";}
+  .codigo-azul-block summary:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
 </style>
 
 <div class="app">
@@ -311,6 +322,18 @@
         Compilado a mano desde comunicados de SENAPRED, delegaciones presidenciales regionales y municipios — no hay un feed oficial único que se pueda refrescar automáticamente (a diferencia del mapa de alertas de senapred.cl/alertas, que sí se actualiza solo cada 6 horas). Cada albergue conserva la fecha de su último comunicado de origen; verifica vigencia y cupo antes de trasladarte. <a href="https://senapred.cl/albergues-emergencia/" target="_blank" rel="noopener">Ver la fuente oficial en senapred.cl →</a>
       </p>
 
+      <details class="codigo-azul-block">
+        <summary>Red permanente de invierno — Código Azul / Plan Protege (50 albergues, 6 regiones)</summary>
+        <p class="source-note" style="margin-top:14px;">
+          Esto <strong>no</strong> son albergues activados por el sistema frontal — es la red permanente del Ministerio de Desarrollo Social para personas en situación de calle durante el invierno (Plan Protege), operativa independiente de la alerta. Se incluye porque, en frío o lluvia extrema, es una opción real de resguardo adicional a la de emergencia. Datos oficiales, actualízalos consultando la fuente antes de derivar a alguien.
+          <a href="https://codigoazul.ministeriodesarrollosocial.gob.cl/albergues" target="_blank" rel="noopener">Ver la fuente oficial (Código Azul) →</a>
+        </p>
+        <div style="margin:12px 0 18px;">
+          <button class="ghost" id="codigo-azul-csv-btn" type="button">Descargar CSV (Código Azul)</button>
+        </div>
+        <div id="codigo-azul-groups"></div>
+      </details>
+
       <div class="cta-card">
         <div class="cta-text">
           <h3>¿Tu organización necesita un plan de respuesta a crisis?</h3>
@@ -352,7 +375,61 @@
     {name:"Segundo Refugio Preventivo (Iglesia Evangélica)", region:"Los Ríos", comuna:"Corral", addr:"Centro de Corral", details:"Capacidad para 14 personas.", contact:"Delegación Presidencial / Senapred Los Ríos", lat:-39.8885, lon:-73.4300, precision:"aprox"}
   ];
 
+  var CODIGO_AZUL = [
+    {name:"Albergue — Municipalidad de La Calera (Camilo Henríquez 192)", region:"Valparaíso", comuna:"Calera", addr:"Camilo Henríquez 192, Calera", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de La Calera", lat:-32.7761, lon:-71.1897, precision:"exacta"},
+    {name:"Albergue — Municipalidad de La Ligua (Papudo 444)", region:"Valparaíso", comuna:"La Ligua", addr:"Papudo 444, La Ligua", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de La Ligua", lat:-32.4509, lon:-71.2277, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Limache (Palmira Romano Sur 340)", region:"Valparaíso", comuna:"Limache", addr:"Palmira Romano Sur 340, Limache", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Limache", lat:-33.0019, lon:-71.2657, precision:"aprox"},
+    {name:"Albergue — Municipalidad de Los Andes (Avda. Salvador Allende 131)", region:"Valparaíso", comuna:"Los Andes", addr:"Avda. Salvador Allende 131, Los Andes", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Los Andes", lat:-32.8203, lon:-70.6096, precision:"exacta"},
+    {name:"Albergue de Emergencia — Municipalidad de Los Andes (Callejón Las Juntas 131)", region:"Valparaíso", comuna:"Los Andes", addr:"Callejón Las Juntas 131, Los Andes", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue de Emergencia. Cupos: 20.", contact:"Municipalidad de Los Andes", lat:-32.8337, lon:-70.5982, precision:"aprox"},
+    {name:"Albergue — Municipalidad de Quillota (Aspillaga 256)", region:"Valparaíso", comuna:"Quillota", addr:"Aspillaga 256, Quillota", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Quillota", lat:-32.8809, lon:-71.2415, precision:"exacta"},
+    {name:"Albergue Protege — Municipalidad de Quilpué (Ramón Ángel Jara s/n)", region:"Valparaíso", comuna:"Quilpué", addr:"Ramón Ángel Jara s/n, Belloto Sur, Quilpué", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Municipalidad de Quilpué", lat:-33.0681, lon:-71.4038, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Quintero (Arturo Prat 1035)", region:"Valparaíso", comuna:"Quintero", addr:"Arturo Prat 1035, Quintero", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Quintero", lat:-32.7751, lon:-71.5307, precision:"exacta"},
+    {name:"Albergue — Municipalidad de San Antonio (Lucía Subercaseaux 122-A)", region:"Valparaíso", comuna:"San Antonio", addr:"Lucía Subercaseaux 122-A, San Antonio", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de San Antonio", lat:-33.5897, lon:-71.6077, precision:"exacta"},
+    {name:"Albergue — Municipalidad de San Antonio (Lucía Subercaseaux 122-B)", region:"Valparaíso", comuna:"San Antonio", addr:"Lucía Subercaseaux 122-B, San Antonio", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de San Antonio", lat:-33.5897, lon:-71.6077, precision:"exacta"},
+    {name:"Albergue — Municipalidad de San Felipe (Salinas 337)", region:"Valparaíso", comuna:"San Felipe", addr:"Salinas 337, San Felipe", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de San Felipe", lat:-32.7451, lon:-70.7308, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Valparaíso (Carampangue 131)", region:"Valparaíso", comuna:"Valparaíso", addr:"Carampangue 131, Valparaíso", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Valparaíso", lat:-33.0331, lon:-71.6326, precision:"exacta"},
+    {name:"Albergue Protege — Corporación Moviliza (Santiago Severin 156)", region:"Valparaíso", comuna:"Valparaíso", addr:"Santiago Severin 156, Valparaíso", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Corporación Moviliza", lat:-33.0374, lon:-71.6328, precision:"exacta"},
+    {name:"Albergue de Emergencia — Corporación Moviliza (Santiago Severin 156)", region:"Valparaíso", comuna:"Valparaíso", addr:"Santiago Severin 156, Valparaíso", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue de Emergencia. Cupos: 30.", contact:"Corporación Moviliza", lat:-33.0374, lon:-71.6328, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Villa Alemana (Condell Norte 164)", region:"Valparaíso", comuna:"Villa Alemana", addr:"Condell Norte 164, Villa Alemana", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Villa Alemana", lat:-33.0349, lon:-71.3733, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Viña del Mar (9 1/2 Norte 917)", region:"Valparaíso", comuna:"Viña del Mar", addr:"9 1/2 Norte 917, Viña del Mar", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Viña del Mar", lat:-33.0222, lon:-71.5467, precision:"exacta"},
+    {name:"Albergue — Fundación Educere (24 Norte 1341)", region:"Valparaíso", comuna:"Viña del Mar", addr:"24 Norte 1341, Viña del Mar", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación Educere", lat:-33.0021, lon:-71.5404, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Coquimbo (Santa Ester 385)", region:"Coquimbo", comuna:"Coquimbo", addr:"Santa Ester 385, Coquimbo", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Coquimbo", lat:-29.9657, lon:-71.326, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Coquimbo (Santo Domingo 375)", region:"Coquimbo", comuna:"Coquimbo", addr:"Santo Domingo 375, Coquimbo", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Coquimbo", lat:-29.8744, lon:-71.2326, precision:"exacta"},
+    {name:"Albergue Protege — Municipalidad de La Serena (Av. Juan Cisternas 1255)", region:"Coquimbo", comuna:"La Serena", addr:"Av. Juan Cisternas 1255, La Serena", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Municipalidad de La Serena", lat:-29.9466, lon:-71.2607, precision:"exacta"},
+    {name:"Albergue — Fundación Kayros Regalando Esperanza (Millán 558)", region:"O'Higgins", comuna:"Rancagua", addr:"Millán 558, Rancagua", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación Kayros Regalando Esperanza", lat:-34.1739, lon:-70.7475, precision:"exacta"},
+    {name:"Albergue Protege — Fundación Kayros Regalando Esperanza (Lídice 431)", region:"O'Higgins", comuna:"Rancagua", addr:"Lídice 431, Rancagua", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Fundación Kayros Regalando Esperanza", lat:-34.1789, lon:-70.7471, precision:"exacta"},
+    {name:"Albergue — Fundación Cáritas (Cristóbal Colón 430)", region:"O'Higgins", comuna:"Rancagua", addr:"Cristóbal Colón 430, Rancagua", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación Cáritas", lat:-34.1729, lon:-70.7348, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Rengo (Urriola 140)", region:"O'Higgins", comuna:"Rengo", addr:"Urriola 140, Rengo", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Rengo", lat:-34.4098, lon:-70.8572, precision:"exacta"},
+    {name:"Albergue — Fundación Cáritas (Yumbel 150)", region:"O'Higgins", comuna:"San Fernando", addr:"Yumbel 150, San Fernando", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación Cáritas", lat:-34.5894, lon:-70.9973, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Curicó (Puerto Cisnes s/n)", region:"Maule", comuna:"Curicó", addr:"Puerto Cisnes s/n, Curicó", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Curicó", lat:-34.9854, lon:-71.2394, precision:"aprox"},
+    {name:"Albergue Protege — Municipalidad de Curicó (Buen Pastor 441)", region:"Maule", comuna:"Curicó", addr:"Buen Pastor 441, Curicó", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Municipalidad de Curicó", lat:-34.9907, lon:-71.2389, precision:"exacta"},
+    {name:"Albergue — ONG Abriga a un Hermano (Peña 985)", region:"Maule", comuna:"Curicó", addr:"Peña 985, Curicó", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"ONG Abriga a un Hermano", lat:-34.9855, lon:-71.2414, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Linares (Eleuterio Ramírez 253)", region:"Maule", comuna:"Linares", addr:"Eleuterio Ramírez 253, Linares", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Linares", lat:-35.8545, lon:-71.5829, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Linares (Brasil 0020)", region:"Maule", comuna:"Linares", addr:"Brasil 0020, Linares", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Linares", lat:-35.8546, lon:-71.5939, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Molina (Av. Poniente 1992)", region:"Maule", comuna:"Molina", addr:"Av. Poniente 1992, Molina", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Molina", lat:-35.1185, lon:-71.2865, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Talca (1 Sur 248)", region:"Maule", comuna:"Talca", addr:"1 Sur 248, Talca", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Talca", lat:-35.4292, lon:-71.6398, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Buin (José Miguel Carrera 433)", region:"Metropolitana", comuna:"Buin", addr:"José Miguel Carrera 433, Buin", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Buin", lat:-33.7236, lon:-70.7453, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Conchalí (San Fernando 1262)", region:"Metropolitana", comuna:"Conchalí", addr:"San Fernando 1262, Conchalí", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Conchalí", lat:-33.3927, lon:-70.6616, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Estación Central (Lisperguer 3585)", region:"Metropolitana", comuna:"Estación Central", addr:"Lisperguer 3585, Estación Central", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Estación Central", lat:-33.4579, lon:-70.6837, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Independencia (General Borgoño 1124)", region:"Metropolitana", comuna:"Independencia", addr:"General Borgoño 1124, Independencia", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Independencia", lat:-33.4306, lon:-70.6543, precision:"exacta"},
+    {name:"Albergue — Municipalidad Isla de Maipo (Camino Las Parcelas km 3)", region:"Metropolitana", comuna:"Isla de Maipo", addr:"Camino Las Parcelas km 3, Isla de Maipo", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad Isla de Maipo", lat:-33.7244, lon:-70.8635, precision:"exacta"},
+    {name:"Albergue — Municipalidad de La Cisterna (Paulina 8515)", region:"Metropolitana", comuna:"La Cisterna", addr:"Paulina 8515, La Cisterna", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de La Cisterna", lat:-33.5302, lon:-70.6647, precision:"exacta"},
+    {name:"Albergue Protege — Fundación Volver a Vivir (San José de la Estrella 153B)", region:"Metropolitana", comuna:"La Florida", addr:"San José de la Estrella 153B, La Florida", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Fundación Volver a Vivir", lat:-33.5535, lon:-70.5898, precision:"exacta"},
+    {name:"Albergue Protege — Municipalidad de Lo Prado (Scala 758)", region:"Metropolitana", comuna:"Lo Prado", addr:"Scala 758, Lo Prado", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Municipalidad de Lo Prado", lat:-33.4445, lon:-70.7146, precision:"exacta"},
+    {name:"Albergue Protege — Corporación La Casa del Padre Demetrio (Av. Demetrio Bravo 0120)", region:"Metropolitana", comuna:"Melipilla", addr:"Av. Demetrio Bravo 0120, Melipilla", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Corporación La Casa del Padre Demetrio", lat:-33.6855, lon:-71.2146, precision:"aprox"},
+    {name:"Albergue — Municipalidad de Peñaflor (Miraflores 1551)", region:"Metropolitana", comuna:"Peñaflor", addr:"Miraflores 1551, Peñaflor", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Peñaflor", lat:-33.6013, lon:-70.8702, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Puente Alto (Gandarillas 49)", region:"Metropolitana", comuna:"Puente Alto", addr:"Gandarillas 49, Puente Alto", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Puente Alto", lat:-33.6071, lon:-70.5765, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Puente Alto (Las Rosas 260)", region:"Metropolitana", comuna:"Puente Alto", addr:"Las Rosas 260, Puente Alto", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Puente Alto", lat:-33.611, lon:-70.5285, precision:"exacta"},
+    {name:"Albergue — Municipalidad de Recoleta (Raquel 578)", region:"Metropolitana", comuna:"Recoleta", addr:"Raquel 578, Recoleta", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Municipalidad de Recoleta", lat:-33.3999, lon:-70.6442, precision:"exacta"},
+    {name:"Albergue — Fundación EDUCERE (Av. El Salto 1502)", region:"Metropolitana", comuna:"Recoleta", addr:"Av. El Salto 1502, Recoleta", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación EDUCERE", lat:-33.4126, lon:-70.6384, precision:"exacta"},
+    {name:"Albergue Protege — Fundación Educere (San Ignacio 1444)", region:"Metropolitana", comuna:"Santiago", addr:"San Ignacio 1444, Santiago", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Fundación Educere", lat:-33.4654, lon:-70.6549, precision:"exacta"},
+    {name:"Albergue — Fundación EDUCERE (Francisco Pizarro 2046)", region:"Metropolitana", comuna:"Santiago", addr:"Francisco Pizarro 2046, Santiago", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue. Cupos: 20.", contact:"Fundación EDUCERE", lat:-33.4737, lon:-70.6702, precision:"exacta"},
+    {name:"Albergue Protege — Corporación Emuna (Las Mulatas 840)", region:"Los Ríos", comuna:"Valdivia", addr:"Las Mulatas 840, Valdivia", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"Corporación Emuna", lat:-39.8496, lon:-73.2563, precision:"exacta"},
+    {name:"Albergue Protege — ONG Caminos de la Vida (Barros Arana 684)", region:"Los Ríos", comuna:"Valdivia", addr:"Barros Arana 684, Valdivia", details:"Red permanente Plan Protege / Código Azul (invierno). Tipo: Albergue Protege. Cupos: 20.", contact:"ONG Caminos de la Vida", lat:-39.8243, lon:-73.2306, precision:"exacta"}
+  ];
+
   var REGION_ORDER = ["Coquimbo","Metropolitana","Maule","Los Ríos"];
+  var CODIGO_AZUL_REGION_ORDER = ["Valparaíso","Coquimbo","O'Higgins","Maule","Metropolitana","Los Ríos"];
 
   var groupsEl = document.getElementById('groups');
   var filtersEl = document.getElementById('region-filters');
@@ -528,8 +605,45 @@
     URL.revokeObjectURL(url);
   });
 
+  function renderCodigoAzul(){
+    var el = document.getElementById('codigo-azul-groups');
+    el.innerHTML = "";
+    CODIGO_AZUL_REGION_ORDER.forEach(function(region){
+      var items = CODIGO_AZUL.filter(function(d){ return d.region === region; });
+      if (!items.length) return;
+      var group = document.createElement('section');
+      group.className = 'region-group';
+      var head = document.createElement('div');
+      head.className = 'region-head';
+      head.innerHTML = '<h2>'+region+'</h2><span class="count">'+items.length+' albergue'+(items.length>1?'s':'')+'</span>';
+      group.appendChild(head);
+      var cards = document.createElement('div');
+      cards.className = 'cards';
+      items.forEach(function(d){ cards.appendChild(card(d)); });
+      group.appendChild(cards);
+      el.appendChild(group);
+    });
+  }
+
+  document.getElementById('codigo-azul-csv-btn').addEventListener('click', function(e){
+    e.preventDefault();
+    var header = ['Nombre','Region','Comuna','Direccion','Detalles','Contacto','Latitud','Longitud','Precision'];
+    var rows = CODIGO_AZUL.map(function(d){
+      return [d.name, d.region, d.comuna, d.addr, d.details, d.contact, d.lat, d.lon, d.precision]
+        .map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
+    });
+    var csv = header.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'codigo_azul_invierno.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
   buildFilters();
   buildSpine();
   render();
+  renderCodigoAzul();
 })();
 </script>

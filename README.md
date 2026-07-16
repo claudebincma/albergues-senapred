@@ -78,6 +78,8 @@ Para probar el workflow manualmente:
 
 ## Estructura de data.json
 
+**Importante**: `index.html` no hace `fetch()` de `data.json` — los datos viven duplicados como arrays JS inline (`DATA` y `CODIGO_AZUL`) dentro del `<script>` del propio HTML, para que el dashboard funcione sin depender de una petición adicional. `data.json` es un **export/referencia** (útil para importar a otras herramientas), no la fuente que lee la página. Si editas albergues, hazlo en ambos lugares o vas a tener el dashboard desincronizado del JSON.
+
 ```json
 {
   "last_updated": "2026-07-16T12:00:00Z",
@@ -95,11 +97,23 @@ Para probar el workflow manualmente:
       "lon": -71.2030,
       "precision": "aprox" | "exacta"
     }
-  ]
+  ],
+  "codigo_azul": [ /* mismo esquema, 50 albergues */ ],
+  "codigo_azul_source": "Ministerio de Desarrollo Social y Familia — Código Azul",
+  "codigo_azul_note": "Red permanente de invierno, no activada específicamente por el sistema frontal."
 }
 ```
 
 - **precision**: `"exacta"` = dirección/localidad puntual encontrada; `"aprox"` = centroide de comuna (sin dirección específica publicada)
+
+## Sección "Código Azul" (invierno permanente)
+
+Además de los albergues activados por el sistema frontal (compilados a mano desde prensa), el dashboard incluye un bloque colapsable con los **50 albergues de la red permanente Código Azul / Plan Protege** del Ministerio de Desarrollo Social — dirigida a personas en situación de calle durante el invierno, operativa independiente de la alerta actual.
+
+- Fuente: https://codigoazul.ministeriodesarrollosocial.gob.cl/albergues (tabla oficial, con dirección/institución/cupos por región)
+- Geocodificado con Nominatim/OpenStreetMap
+- Cubre las 6 regiones de la emergencia actual: Valparaíso, Coquimbo, O'Higgins, Maule, Metropolitana, Los Ríos
+- Tiene su propio botón de descarga CSV, separado del de emergencia, para no mezclar ambas categorías en Google My Maps
 
 ## Scripts
 
