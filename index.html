@@ -65,23 +65,13 @@
 
   .app{max-width:1180px;margin:0 auto;padding:0 20px 64px;}
 
+  /* header */
   header.top{
     position:sticky; top:0; z-index:20;
     background:var(--bg);
     padding:20px 0 14px;
     border-bottom:1px solid var(--line);
   }
-  .related-nav{
-    display:flex; justify-content:flex-end; margin-bottom:10px;
-  }
-  .related-nav a{
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:600; color:var(--storm);
-    text-decoration:none; padding:5px 0;
-  }
-  .related-nav a:hover{text-decoration:underline;}
-  .related-nav a:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
-
   .eyebrow{
     font-size:11px; letter-spacing:.14em; text-transform:uppercase;
     color:var(--muted); font-weight:600; margin:0 0 6px;
@@ -142,6 +132,7 @@
     background:var(--storm); border-color:var(--storm); color:var(--surface);
   }
 
+  /* layout: geographic spine + content */
   .layout{
     display:grid;
     grid-template-columns:64px 1fr;
@@ -226,6 +217,13 @@
   .precision-pill.exacta{background:var(--ok-soft); color:var(--ok);}
   .precision-pill.aprox{background:var(--warn-soft); color:var(--warn);}
 
+  footer{
+    margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
+    font-size:12.5px; color:var(--muted);
+  }
+  footer a{color:var(--muted); text-decoration:underline;}
+  footer p{margin:0 0 8px;}
+
   .source-note{
     font-size:12.5px; color:var(--muted); margin:0 0 22px; max-width:78ch;
   }
@@ -254,17 +252,21 @@
   a.cta-button:hover{filter:brightness(1.08);}
   a.cta-button:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
 
-  footer{
-    margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
-    font-size:12.5px; color:var(--muted);
-  }
-  footer a{color:var(--muted); text-decoration:underline;}
-  footer p{margin:0 0 8px;}
-
   @media (prefers-reduced-motion:no-preference){
     .card{transition:border-color .15s ease;}
     .card:hover{border-color:var(--storm);}
   }
+
+  .related-nav{
+    display:flex; justify-content:flex-end; margin-bottom:10px;
+  }
+  .related-nav a{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:600; color:var(--storm);
+    text-decoration:none; padding:5px 0;
+  }
+  .related-nav a:hover{text-decoration:underline;}
+  .related-nav a:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
 </style>
 
 <div class="app">
@@ -272,12 +274,12 @@
     <nav class="related-nav">
       <a href="https://aquamarine-melba-0d2690.netlify.app/" target="_blank" rel="noopener">Ver mapa de alertas SENAPRED →</a>
     </nav>
-    <p class="eyebrow">Chile · Emergencia preventiva · 13–21 jul 2026</p>
+    <p class="eyebrow">Chile · Emergencia preventiva · 13&ndash;21 jul 2026</p>
     <h1>Albergues habilitados por el sistema frontal</h1>
-    <p class="sub" id="subtitle">Compilado a partir de comunicados de SENAPRED, delegaciones presidenciales y municipios.</p>
+    <p class="sub">Compilado a partir de comunicados de SENAPRED, delegaciones presidenciales y municipios. Última actualización de esta lista: 16 jul 2026, mediodía.</p>
 
     <div class="alertbar">
-      <span class="alert-chip"><span class="dot"></span>Alerta Temprana Preventiva activa en 10 regiones (Atacama–Los Ríos)</span>
+      <a class="cta-button" href="https://4drr.com/be-prepared/" target="_blank" rel="noopener">Prepara tu kit de emergencia</a>
     </div>
 
     <div class="controls">
@@ -305,7 +307,9 @@
 
       <div id="groups"></div>
 
-      <p class="source-note" id="source-note"></p>
+      <p class="source-note">
+        Compilado a mano desde comunicados de SENAPRED, delegaciones presidenciales regionales y municipios — no hay un feed oficial único que se pueda refrescar automáticamente (a diferencia del mapa de alertas de senapred.cl/alertas, que sí se actualiza solo cada 6 horas). Cada albergue conserva la fecha de su último comunicado de origen; verifica vigencia y cupo antes de trasladarte. <a href="https://senapred.cl/albergues-emergencia/" target="_blank" rel="noopener">Ver la fuente oficial en senapred.cl →</a>
+      </p>
 
       <div class="cta-card">
         <div class="cta-text">
@@ -325,30 +329,34 @@
 
 <script>
 (function(){
-  var DATA = [];
+  var DATA = [
+    {name:"Refugio de Emergencia La Bombonera Municipal", region:"Coquimbo", comuna:"Ovalle", addr:"Av. La Bombonera s/n, Ovalle", details:"Personas en situación de calle. Capacidad 40. Ingreso 18:00–20:00 hrs. Alimentación, higiene, abrigo, atención médica.", contact:"Municipalidad de Ovalle", lat:-30.6031, lon:-71.2030, precision:"aprox"},
+    {name:"Albergue de Emergencia Calle Socos", region:"Coquimbo", comuna:"Ovalle", addr:"Calle Socos, centro de Ovalle", details:"Familias damnificadas por lluvias.", contact:"Municipalidad de Ovalle", lat:-30.6041, lon:-71.2010, precision:"aprox"},
+    {name:"Centro Comunitario Punta Mira", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector Punta Mira, Coquimbo", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-29.9935, lon:-71.3277, precision:"exacta"},
+    {name:"Centro Comunitario La Cantera", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector La Cantera, Coquimbo", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-29.9752, lon:-71.2997, precision:"exacta"},
+    {name:"CENDYR Tierras Blancas", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector Tierras Blancas, Coquimbo", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-29.9659, lon:-71.2559, precision:"exacta"},
+    {name:"Casa de la Cultura de Tongoy", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector costero Tongoy", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-30.2572, lon:-71.4929, precision:"exacta"},
+    {name:"Ex Delegación de Guanaqueros", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector costero Guanaqueros", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-30.1977, lon:-71.4220, precision:"exacta"},
+    {name:"Centro Comunitario de Cuidados Parte Alta", region:"Coquimbo", comuna:"Coquimbo", addr:"Sector Parte Alta, Coquimbo", details:"Red de albergues preventivos.", contact:"Línea municipal 1420 (24h)", lat:-29.9533, lon:-71.3436, precision:"aprox"},
+    {name:"Sede Social Porvenir de Chañaral Alto", region:"Coquimbo", comuna:"Monte Patria", addr:"Chañaral Alto, Monte Patria", details:"Refugio temporal preventivo.", contact:"Municipalidad de Monte Patria", lat:-30.8865, lon:-71.0154, precision:"exacta"},
+    {name:"Sede Social El Palqui Alto", region:"Coquimbo", comuna:"Monte Patria", addr:"El Palqui, Monte Patria", details:"Refugio temporal preventivo.", contact:"Municipalidad de Monte Patria", lat:-30.7680, lon:-70.9433, precision:"exacta"},
+    {name:"Sede Club Deportivo Cóndor de Macano", region:"Coquimbo", comuna:"Monte Patria", addr:"Macano, Monte Patria", details:"Refugio temporal preventivo.", contact:"Municipalidad de Monte Patria", lat:-30.9758, lon:-70.7478, precision:"exacta"},
+    {name:"Salas de la Escuela de Tulahuén", region:"Coquimbo", comuna:"Monte Patria", addr:"Tulahuén, Monte Patria", details:"Refugio temporal preventivo.", contact:"Municipalidad de Monte Patria", lat:-30.9649, lon:-70.7687, precision:"exacta"},
+    {name:"CESFAM / Sede Social de Carén", region:"Coquimbo", comuna:"Monte Patria", addr:"Carén, Monte Patria", details:"Refugio temporal preventivo.", contact:"Municipalidad de Monte Patria", lat:-30.8521, lon:-70.7700, precision:"exacta"},
+    {name:"Sede Social de Rapel", region:"Coquimbo", comuna:"Monte Patria", addr:"Rapel, Monte Patria", details:"Refugio temporal preventivo. Otros puntos habilitados en la comuna sin dirección geolocalizable: JJVV El Cuyano, El Peral, El Tayán, El Chagual, Capilla El Cuyano, Sede Hda. Los Molles, Los Clonquis, Hacienda Valdivia, Sede Santa Bernardita de Pedregal.", contact:"Municipalidad de Monte Patria", lat:-30.7234, lon:-70.7721, precision:"exacta"},
+    {name:"Internado Liceo Bicentenario Samuel Román Rojas", region:"Coquimbo", comuna:"Combarbalá", addr:"Av. Oriente 515, Combarbalá", details:"Internado habilitado como refugio.", contact:"Depto. Social +56 9 7331 7445", lat:-31.1787, lon:-71.0006, precision:"exacta"},
+    {name:"Albergue Casa Comunitaria Casa Sur", region:"Metropolitana", comuna:"Ñuñoa", addr:"Av. Marathón 1670, Ñuñoa", details:"Operativo del jueves 16 al domingo 19 de julio. Resguardo por lluvias y frío extremo.", contact:"1445 / +56 9 8209 2821", lat:-33.4702, lon:-70.6130, precision:"exacta"},
+    {name:"Albergue de Emergencia Municipal", region:"Metropolitana", comuna:"Independencia", addr:"General Borgoño 1124, Independencia", details:"Personas en situación de calle. 40 cupos + Centro de Día Calle.", contact:"Municipalidad de Independencia", lat:-33.4306, lon:-70.6543, precision:"exacta"},
+    {name:"Albergue de Calle Peña", region:"Maule", comuna:"Curicó", addr:"Calle Peña, centro de Curicó", details:"Uno de los 9 albergues habilitados en Curicó (6 urbanos, 3 rurales; ~2.500 cupos en total).", contact:"Fono emergencia municipal 1484", lat:-34.9854, lon:-71.2394, precision:"aprox"},
+    {name:"Refugio Iglesia Católica de Corral", region:"Los Ríos", comuna:"Corral", addr:"Centro de Corral", details:"Dotado por Senapred Los Ríos: 15 catres de campaña, frazadas, raciones de combate.", contact:"Delegación Presidencial / Senapred Los Ríos", lat:-39.8877, lon:-73.4315, precision:"aprox"},
+    {name:"Segundo Refugio Preventivo (Iglesia Evangélica)", region:"Los Ríos", comuna:"Corral", addr:"Centro de Corral", details:"Capacidad para 14 personas.", contact:"Delegación Presidencial / Senapred Los Ríos", lat:-39.8885, lon:-73.4300, precision:"aprox"}
+  ];
+
   var REGION_ORDER = ["Coquimbo","Metropolitana","Maule","Los Ríos"];
 
   var groupsEl = document.getElementById('groups');
   var filtersEl = document.getElementById('region-filters');
-  var subtitleEl = document.getElementById('subtitle');
-  var sourceNoteEl = document.getElementById('source-note');
   var activeRegion = null;
-
-  // Load data from data.json
-  fetch('data.json')
-    .then(r => r.json())
-    .then(d => {
-      DATA = d.albergues;
-      subtitleEl.textContent = 'Compilado a partir de comunicados de SENAPRED, delegaciones presidenciales y municipios. Última actualización: ' + d.last_updated_es + '.';
-      sourceNoteEl.innerHTML = 'Compilado a mano desde comunicados de SENAPRED, delegaciones presidenciales regionales y municipios — no hay un feed oficial único que se pueda refrescar automáticamente (a diferencia del mapa de alertas de senapred.cl/alertas, que sí se actualiza solo cada 6 horas). Cada albergue conserva la fecha de su último comunicado de origen; verifica vigencia y cupo antes de trasladarte. <a href="https://senapred.cl/albergues-emergencia/" target="_blank" rel="noopener">Ver la fuente oficial en senapred.cl →</a>';
-      buildFilters();
-      buildSpine();
-      render();
-    })
-    .catch(e => {
-      console.error('Error loading data.json:', e);
-      groupsEl.innerHTML = '<p style="color:var(--crit);">Error cargando datos. Verifique que data.json exista.</p>';
-    });
 
   function haversine(lat1,lon1,lat2,lon2){
     var R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
@@ -451,6 +459,7 @@
       text.textContent = d.region.slice(0,3).toUpperCase();
       g.appendChild(text);
     });
+    // N / S labels
     var n = document.createElementNS('http://www.w3.org/2000/svg','text');
     n.setAttribute('x',32); n.setAttribute('y',12); n.setAttribute('text-anchor','middle');
     n.setAttribute('class','spine-label'); n.textContent = 'N';
@@ -518,5 +527,9 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
+
+  buildFilters();
+  buildSpine();
+  render();
 })();
 </script>
