@@ -1,0 +1,58 @@
+name: Verificar cambios en albergues (24h)
+
+on:
+  schedule:
+    # Cada 24 horas a las 12:00 UTC (8:00 AM CLT)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Verificar cambios
+        id: check
+        run: |
+          python scripts/update_albergues.py
+          echo "checked=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Comentar en issue si hay cambios
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: 1,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔔 **Cambios detectados en albergues** (última verificación automática: ' + new Date().toLocaleString('es-CL', {timeZone: 'America/Santiago'}) + ')\n\nDispara `python scripts/update_albergues.py` localmente, actualiza `data.json` con los cambios, y haz `git commit`.'
+            })
+
+      - name: Crear issue si no existe
+        if: steps.check.outputs.checked == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'albergues-check'
+            });
+            if (issues.data.length === 0) {
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Actualizaciones de albergues (verificación automática)',
+                labels: ['albergues-check'],
+                body: 'Issue de seguimiento para verificaciones automáticas de cambios en albergues habilitados.'
+              });
+            }
