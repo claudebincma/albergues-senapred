@@ -1,6 +1,6 @@
 {
-  "last_updated": "2026-07-16T12:00:00Z",
-  "last_updated_es": "16 jul 2026, mediodía",
+  "last_updated": "2026-07-17T22:00:00Z",
+  "last_updated_es": "17 jul 2026, noche",
   "source": "Comunicados de SENAPRED, delegaciones presidenciales y municipios",
   "albergues": [
     {
@@ -221,6 +221,50 @@
       "contact": "Delegación Presidencial / Senapred Los Ríos",
       "lat": -39.8885,
       "lon": -73.43,
+      "precision": "aprox"
+    },
+    {
+      "name": "Albergue Municipal Liceo Politécnico",
+      "region": "Coquimbo",
+      "comuna": "Illapel",
+      "addr": "Liceo Politécnico, Illapel",
+      "details": "Habilitado desde las 14:00. 14 personas albergadas: familia de 10 desplazada de ribera de río + 4 personas en situación de calle trasladadas por protección.",
+      "contact": "Municipalidad de Illapel",
+      "lat": -31.6394,
+      "lon": -71.1799,
+      "precision": "exacta"
+    },
+    {
+      "name": "Albergue de Emergencia Tocornal Grez",
+      "region": "Metropolitana",
+      "comuna": "Puente Alto",
+      "addr": "Tocornal Grez, Puente Alto",
+      "details": "Familias trasladadas desde asentamiento irregular en Valle Hermoso/Casas Viejas por riesgo de remoción en masa (erosión ribera río Maipo, alerta Sernageomin 2024). Camarotes acondicionados, 4 comidas diarias, apoyo SAPU.",
+      "contact": "Municipalidad de Puente Alto",
+      "lat": -33.6169,
+      "lon": -70.578,
+      "precision": "exacta"
+    },
+    {
+      "name": "Refugio Temporal para Mascotas — Gimnasio Víctor Soto Bastías",
+      "region": "Metropolitana",
+      "comuna": "Talagante",
+      "addr": "Domingo Toro Herrera 958, Talagante",
+      "details": "Refugio para mascotas y animales callejeros, 16 al 19 jul. Más de 1.500 personas evacuadas del campamento Ribera del Río por crecida del Mapocho (custodia del Ejército); la dirección del albergue humano no ha sido publicada aún.",
+      "contact": "Municipalidad de Talagante",
+      "lat": -33.6593,
+      "lon": -70.9259,
+      "precision": "exacta"
+    },
+    {
+      "name": "Albergue Parque Orión (Ex CUCA)",
+      "region": "Metropolitana",
+      "comuna": "Cerrillos",
+      "addr": "Parque Orión, Cerrillos (dirección exacta no publicada)",
+      "details": "~600 personas evacuadas preventivamente del campamento Nuevo Amanecer (sectores La Islita y Colombia, ~210 viviendas) por riesgo de deslizamiento según informe Sernageomin. Traslado en buses municipales.",
+      "contact": "Municipalidad de Cerrillos / Delegación Presidencial Metropolitana",
+      "lat": -33.5023,
+      "lon": -70.7158,
       "precision": "aprox"
     }
   ],
