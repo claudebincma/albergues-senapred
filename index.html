@@ -110,7 +110,7 @@
     display:inline-flex; align-items:center; gap:8px;
   }
   button.primary:hover{filter:brightness(1.08);}
-  button.primary:focus-visible, .region-btn:focus-visible, .card a:focus-visible, button.ghost:focus-visible{
+  button.primary:focus-visible, #region-select:focus-visible, .card a:focus-visible, button.ghost:focus-visible{
     outline:2px solid var(--focus); outline-offset:2px;
   }
   button.ghost{
@@ -122,15 +122,19 @@
   #geo-status{font-size:13px; color:var(--muted);}
 
   .region-filters{
-    display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;
+    margin-top:12px;
   }
-  .region-btn{
-    font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:100px;
-    border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer;
+  #region-select{
+    font-size:13.5px; font-weight:600; padding:9px 14px; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;
+    min-width:220px;
   }
-  .region-btn[aria-pressed="true"]{
-    background:var(--storm); border-color:var(--storm); color:var(--surface);
+  #region-select:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+
+  .empty-state{
+    padding:20px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); font-size:13.5px;
   }
+  .empty-state a{color:var(--storm);}
 
   /* layout: geographic spine + content */
   .layout{
@@ -308,7 +312,9 @@
       <span id="geo-status"></span>
     </div>
 
-    <div class="region-filters" id="region-filters" role="group" aria-label="Filtrar por región"></div>
+    <div class="region-filters">
+      <select id="region-select" aria-label="Filtrar por región"></select>
+    </div>
   </header>
 
   <div class="layout">
@@ -445,9 +451,11 @@
 
   var REGION_ORDER = ["Coquimbo","Metropolitana","Maule","Los Ríos"];
   var CODIGO_AZUL_REGION_ORDER = ["Valparaíso","Coquimbo","O'Higgins","Maule","Metropolitana","Los Ríos"];
+  // Rango completo Atacama → Los Ríos, orden geográfico N-S (independiente de si hoy tienen albergues cargados)
+  var ALL_REGIONS_ORDER = ["Atacama","Coquimbo","Valparaíso","Metropolitana","O'Higgins","Maule","Ñuble","Biobío","Araucanía","Los Ríos"];
 
   var groupsEl = document.getElementById('groups');
-  var filtersEl = document.getElementById('region-filters');
+  var filtersEl = document.getElementById('region-select');
   var activeRegion = null;
 
   function haversine(lat1,lon1,lat2,lon2){
@@ -462,10 +470,12 @@
 
   function render(){
     groupsEl.innerHTML = "";
-    REGION_ORDER.forEach(function(region){
-      if (activeRegion && activeRegion !== region) return;
+    var regionsToShow = activeRegion ? [activeRegion] : REGION_ORDER;
+    var shown = 0;
+    regionsToShow.forEach(function(region){
       var items = DATA.filter(function(d){ return d.region === region; });
       if (!items.length) return;
+      shown++;
       var group = document.createElement('section');
       group.className = 'region-group';
 
@@ -482,6 +492,13 @@
       group.appendChild(cards);
       groupsEl.appendChild(group);
     });
+
+    if (activeRegion && shown === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = 'No hay albergues activados por el sistema frontal registrados en <strong>'+activeRegion+'</strong> por ahora. Revisa la red permanente <a href="#codigo-azul-groups">Código Azul / Plan Protege</a> más abajo, que sí cubre esta región.';
+      groupsEl.appendChild(empty);
+    }
   }
 
   var TIPO_CLASS = {
@@ -514,32 +531,26 @@
   }
 
   function buildFilters(){
-    var all = document.createElement('button');
-    all.className = 'region-btn';
-    all.type = 'button';
-    all.textContent = 'Todas las regiones';
-    all.setAttribute('aria-pressed', 'true');
-    all.addEventListener('click', function(){ setRegion(null); });
-    filtersEl.appendChild(all);
+    var optAll = document.createElement('option');
+    optAll.value = '';
+    optAll.textContent = 'Todas las regiones';
+    filtersEl.appendChild(optAll);
 
-    REGION_ORDER.forEach(function(region){
-      var btn = document.createElement('button');
-      btn.className = 'region-btn';
-      btn.type = 'button';
-      btn.textContent = region;
-      btn.setAttribute('aria-pressed', 'false');
-      btn.addEventListener('click', function(){ setRegion(region); });
-      filtersEl.appendChild(btn);
+    ALL_REGIONS_ORDER.forEach(function(region){
+      var opt = document.createElement('option');
+      opt.value = region;
+      opt.textContent = region;
+      filtersEl.appendChild(opt);
+    });
+
+    filtersEl.addEventListener('change', function(){
+      setRegion(filtersEl.value || null);
     });
   }
 
   function setRegion(region){
     activeRegion = region;
-    Array.prototype.forEach.call(filtersEl.children, function(btn){
-      btn.setAttribute('aria-pressed', String(
-        (region === null && btn.textContent === 'Todas las regiones') || btn.textContent === region
-      ));
-    });
+    filtersEl.value = region || '';
     render();
   }
 
