@@ -1,8 +1,8 @@
 # Albergues Habilitados — Sistema Frontal Julio 2026
 
-Dashboard público de albergues habilitados en respuesta a emergencias climáticas en Chile, compilado desde comunicados de SENAPRED, delegaciones presidenciales regionales y municipios.
+Dashboard público de albergues habilitados en respuesta a emergencias climáticas en Chile. Fuente principal: catastro oficial **"Nómina de Albergues"** de SENAPRED / IDE Chile (Ministerio de Bienes Nacionales), 247 recintos con dirección y coordenadas reales, vía el visor [Emergencia Meteorológica Julio 2026](https://idechile.maps.arcgis.com/apps/dashboards/32d25c2ec3d24a968bde454f9a02d4d7). Se complementa con 3 casos de prensa en comunas que ese catastro aún no cubre (Independencia, Corral).
 
-**Sitio en vivo:** (se completa después de deploy a Netlify)
+**Sitio en vivo:** https://albergues-senapred.netlify.app/
 
 ## Estructura
 
@@ -148,10 +148,10 @@ Antes de enviar a alguien a un albergue, confirma la dirección exacta con el mu
 
 ## Fuentes
 
-- SENAPRED: https://senapred.cl/
-- Delegaciones presidenciales regionales
-- Municipios (comunicados de prensa)
-- Geocodificación: OpenStreetMap Nominatim
+- **Catastro oficial**: "Nómina de Albergues" (SENAPRED / IDE Chile), vía el visor [Emergencia Meteorológica Julio 2026](https://idechile.maps.arcgis.com/apps/dashboards/32d25c2ec3d24a968bde454f9a02d4d7). El FeatureServer con datos punto a punto (nombre, dirección, comuna, región, coordenadas) vive en `https://services3.arcgis.com/YLNLlpguFsVmgseb/arcgis/rest/services/AlberguesSenapred/FeatureServer/0` — consultable directo con `?where=1=1&outFields=*&f=json`. Para refrescar: repetir la consulta y regenerar el array `DATA` en `index.html` + `data.json`.
+- Prensa y comunicados municipales (solo para comunas fuera del catastro oficial)
+- Código Azul (invierno permanente): https://codigoazul.ministeriodesarrollosocial.gob.cl/albergues
+- Geocodificación de los casos de prensa: OpenStreetMap Nominatim
 
 ## Contacto y licencia
 
